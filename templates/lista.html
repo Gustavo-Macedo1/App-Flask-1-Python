@@ -1,0 +1,21 @@
+{% extends "template.html" %}
+{% block conteudo%}
+        <table class="table table-striped table-responsive table-bordered">
+            <thead class="thead-default">
+                <tr> <!-- Aqui colocamos o nome das colunas (th = table header) -->
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Platform</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for jogo in jogos %}
+                <tr> <!-- Aqui colocamos as caracteristicas do objeto para cada coluna -->
+                    <td>{{jogo.nome}}</td>
+                    <td>{{jogo.categoria}}</td>
+                    <td>{{jogo.plataforma}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+{% endblock %}
