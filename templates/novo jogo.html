@@ -1,6 +1,6 @@
 {% extends "template.html" %} <!-- Qual o arquivo envólucro desse conteúdo? -->
 {% block conteudo %} <!-- Definir conteúdo -->
-      <form action="/criar" method="POST">
+      <form action={{ url_for('criar_jogo') }} method="POST">
         <fieldset>
           <div class="form-group">
             <label for="nome">Nome</label>

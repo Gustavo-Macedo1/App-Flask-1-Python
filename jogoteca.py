@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, flash
+from flask import Flask, render_template, request, redirect, session, flash, url_for
 
 class Jogos:
   def __init__(self, nome, categoria, plataforma):
@@ -11,6 +11,20 @@ jogo2 = Jogos('Elden Ring', 'RPG', 'PS5')
 jogo3 = Jogos('Overcooked 2', 'Simulation', 'PC')
 lista_jogos = [jogo1, jogo2, jogo3]
 
+class Usuario:
+  def __init__(self, nome, nick, senha):
+    self.nome = nome
+    self.nick = nick
+    self.senha = senha
+
+user1 = Usuario('Gustavo Macedo', 'programador', 'github12')
+user2 = Usuario('Guilherme Briggs', 'guizinho', 'dublador')
+user3 = Usuario('Rihanna', 'cantomuito', 'sourica123')
+
+users = { user1.nick : user1,
+          user2.nick : user2,
+          user3.nick : user3 }
+
 app = Flask(__name__)
 app.secret_key = 'gustavomacedo'
 
@@ -20,7 +34,10 @@ def gerar_inicial():
 
 @app.route('/novo')
 def novo_jogo():
-  return render_template('novo jogo.html', titulo='Criar novo jogo')
+  if 'usuario_logado' not in session or session['usuario_logado'] == None:
+    return redirect(url_for('login', proximo=url_for('novo_jogo')))
+  else:
+    return render_template('novo jogo.html', titulo='Criar novo jogo')
 
 @app.route('/criar', methods=['POST',])
 def criar_jogo():
@@ -29,26 +46,30 @@ def criar_jogo():
   plataforma = request.form['plataforma']
   novo = Jogos(nome, categoria, plataforma)
   lista_jogos.append(novo)
-  return redirect('/')
+  return redirect(url_for('gerar_inicial'))
 
 @app.route('/login')
 def login():
-  return render_template('login.html')
+  proxima = request.args.get('proximo')
+  return render_template('login.html', prox = proxima)
 
 @app.route('/autenticar', methods=['POST',])
 def autenticar():
-  if request.form['senha'] == 'alohomora':
-    session['usuario_logado'] = request.form['usuario']
-    flash('Olá, ' + session['usuario_logado'] +'! Seja bem-vindo(a)!')
-    return redirect('/')
-  else:
-    flash('Erro! Usuário ou senha incorreto(a).')
-    return redirect('/login')
+  if request.form['usuario'] in users:
+    usuario = users[request.form['usuario']]
+    if request.form['senha'] == usuario.senha:
+      session['usuario_logado'] = usuario.nick
+      flash('Olá, ' + usuario.nick +'! Seja bem-vindo(a)!')
+      proxima = request.form['proxima']
+      return redirect(proxima)
+
+  flash('Erro! Usuário ou senha incorreto(a).')
+  return redirect(url_for('login'))
 
 @app.route('/logout')
 def logout():
   session['usuario_logado'] = None
   flash('Logout realizado com sucesso.')
-  return redirect('/')
+  return redirect(url_for('gerar_inicial'))
 
 app.run(debug=True)
